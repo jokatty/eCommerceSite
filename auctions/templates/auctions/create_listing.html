@@ -2,23 +2,15 @@
 
 {% block body %}
     <h2>Create New Listing:</h2>
-    <form>
-        <div class="form-group">
-            <input type="text" placeholder="title">
-        </div>
-        <div class="form-group">
-            <input type="text" placeholder="description">
-        </div>
-        <div class="form-group">
-            <input type="number" step="0.01" placeholder="starting bid">
-        </div>
-        <div>
-            <input class="form-group" type="url" placeholder="https://example.com" pattern="https://.*">
-        </div>
-        <div class="form-group">
-            <input type="submit">
-        </div>
-         
+
+    {% if message %}
+       <div>{{ message }}</div> 
+    {% endif %}
+
+    <form action="{% url 'create_listing' %}" method="POST">
+        {% csrf_token %}
+        {{ form }}
+    <input type="submit">
     </form>
 
 {% endblock %}

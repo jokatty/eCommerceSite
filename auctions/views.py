@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.urls import reverse
 from .models import Listing
 
 from .models import User
+from . import forms
 
 
 def index(request):
@@ -69,10 +70,22 @@ def register(request):
 
 def create_listing(request):
     if request.method == "POST":
-        return None # TO DO
-
+        form = forms.CreateListing(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.listed_by = request.user
+            instance.save()
+            return redirect('index')
+        else:
+            return render(request,'auctions/create_listing.html',{
+                "form":form
+            })
+                
     else:
-        return render(request, 'auctions/create_listing.html')
+        form = forms.CreateListing(request.POST)
+        return render(request, 'auctions/create_listing.html',{
+            "form":form
+        })
 
 
 def listing_details(request,list_id):
