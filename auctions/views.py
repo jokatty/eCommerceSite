@@ -3,12 +3,17 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from .models import Listing
 
 from .models import User
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    lists = Listing.objects.all()
+    #image = lists.image()
+    return render(request, "auctions/index.html", {
+        "lists":lists
+    })
 
 
 def login_view(request):
@@ -68,3 +73,16 @@ def create_listing(request):
 
     else:
         return render(request, 'auctions/create_listing.html')
+
+
+def listing_details(request,list_id):
+    listed = Listing.objects.get(pk = list_id)
+    return render(request,'auctions/listing_details.html',{
+       "list":listed,
+    })
+
+def watchlist(request):
+    if request.method == 'POST':
+        return render(request, 'auctions/watchlist.html')
+    else:
+        return render(request,'auctions/watchlist.html')
