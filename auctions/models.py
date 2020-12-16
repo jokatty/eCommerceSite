@@ -32,7 +32,15 @@ class Bid(models.Model):
 
 class Comment(models.Model):
     comment = models.CharField(max_length=300)
-    comment_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_comment')
+    comment_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_comment', blank=True, null=True)
 
     def __str__(self):
         return f"{self.comment}. commented by: {self.comment_by} "
+
+class Watchlist(models.Model):
+    item = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='list_item', blank=True, null=True)
+    watched_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='user_watchlist', blank=True,null=True)
+
+    def __str__(self):
+        return f"{self.item} is watched by {self.watched_by}"
+

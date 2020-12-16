@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render,redirect
 from django.urls import reverse
-from .models import Listing
+from .models import Listing, Watchlist,Comment
 
 from .models import User
 from . import forms
@@ -89,13 +89,27 @@ def create_listing(request):
 
 
 def listing_details(request,list_id):
-    listed = Listing.objects.get(pk = list_id)
-    return render(request,'auctions/listing_details.html',{
-       "list":listed,
-    })
+    if request.method =='POST':
+        form = forms.Comment(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.commented_by = request.user
+            instance.save()
+            return HttpResponse("thank you for your comment!")
+            
+    else:
+        form = forms.Comment(request.POST)
+        listed = Listing.objects.get(pk = list_id)
+        comments = Comment.objects.all()
+        return render(request,'auctions/listing_details.html',{
+            "list":listed,"form":form, "comments":comments
+        })
 
 def watchlist(request):
     if request.method == 'POST':
-        return render(request, 'auctions/watchlist.html')
+        form = forms.CreateWatchlist(request.POST)
+        instance = form.save(commit=False)
+        instance.save()
+        return redirect('watchlist')
     else:
         return render(request,'auctions/watchlist.html')
