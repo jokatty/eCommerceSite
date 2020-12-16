@@ -90,19 +90,41 @@ def create_listing(request):
 
 def listing_details(request,list_id):
     if request.method =='POST':
-        form = forms.Comment(request.POST)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            instance.commented_by = request.user
-            instance.save()
-            return HttpResponse("thank you for your comment!")
+        if 'watchlist_form' in request.POST:
+            watchlist_form = forms.Watchlist(request.POST)
+            if watchlist_form.is_valid():
+                instance = watchlist_form.save(commit=False)
+                instance.watched_by = request.user
+                instance.save()
+                return HttpResponse("your item is on watchlist")
+
+        elif 'bid_form' in request.POST:
+            bid_form = forms.Bid(request.POST)
+            if bid_form.is_valid():
+                instance = bid_form.save(commit=False)
+                instance.bid_by = request.user
+                instance.save()
+                return HttpResponse("Your bid is submited")
+            else:
+                return None
+        
+        elif 'comment_form' in request.POST:
+            comment_form = forms.Comment(request.POST)
+            if comment_form.is_valid():
+                instance = comment_form.save(commit=False)
+                instance.commented_by = request.user
+                instance.save()
+                return HttpResponse("thank you for your comment!")
             
     else:
-        form = forms.Comment(request.POST)
+        bid_form= forms.Bid()
+        comment_form = forms.Comment()
+        watchlist_form = forms.Watchlist()
+        #form = forms.Comment(request.POST)
         listed = Listing.objects.get(pk = list_id)
         comments = Comment.objects.all()
         return render(request,'auctions/listing_details.html',{
-            "list":listed,"form":form, "comments":comments
+            "list":listed,"comment_form":comment_form, "comments":comments,"watchlist_form":watchlist_form, "bid_form":bid_form
         })
 
 def watchlist(request):
@@ -112,4 +134,7 @@ def watchlist(request):
         instance.save()
         return redirect('watchlist')
     else:
-        return render(request,'auctions/watchlist.html')
+        watchlists = Watchlist.objects.all()
+        return render(request,'auctions/watchlist.html',{
+            "watchlists": watchlists
+        })
